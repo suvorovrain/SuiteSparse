@@ -6,7 +6,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 //------------------------------------------------------------------------------
-
+#ifdef GBRISCV64
+#include <riscv_vector.h>
+#endif
+#include "stdio.h"
 #include "GB.h"
 #include "GB_control.h"
 #include "mxm/GB_AxB_saxpy.h"
@@ -285,18 +288,7 @@ GrB_Info GB (_Asaxpy4B__plus_times_fp32)
 
         //----------------------------------------------------------------------
         // saxpy5 method with RISC-V vectors
-        //----------------------------------------------------------------------
-        #define GB_V16_256 (16 * GB_Z_NBITS <= 256)
-        #define GB_V8_256  ( 8 * GB_Z_NBITS <= 256)
-        #define GB_V4_256  ( 4 * GB_Z_NBITS <= 256)
-
-        #undef  GB_V16
-        #undef  GB_V8
-        #undef  GB_V4
-
-        #define GB_V16 GB_V16_256
-        #define GB_V8  GB_V8_256
-        #define GB_V4  GB_V4_256
+        //---------------------------------------------------------------------
 
         #if GB_COMPILER_SUPPORTS_RVV1
 
@@ -311,7 +303,7 @@ GrB_Info GB (_Asaxpy4B__plus_times_fp32)
             )
             {
                 printf("riscvhype!\n");
-                #include "mxm/template/GB_AxB_saxpy5_unrolled.c"
+                #include "mxm/template/GB_AxB_saxpy5_lv.c"
             }
 
         #endif
