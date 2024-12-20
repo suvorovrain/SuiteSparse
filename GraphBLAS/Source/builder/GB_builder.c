@@ -178,9 +178,6 @@ GrB_Info GB_builder                 // build a matrix from tuples
     ASSERT (J_work_size_handle != NULL) ;
     ASSERT (S_work_size_handle != NULL) ;
 
-    double tt = GB_OPENMP_GET_WTIME ;
-    double t1 = GB_OPENMP_GET_WTIME ;
-
     //--------------------------------------------------------------------------
     // get Sx
     //--------------------------------------------------------------------------
@@ -516,10 +513,6 @@ GrB_Info GB_builder                 // build a matrix from tuples
         known_no_duplicates = known_sorted && no_duplicates_found ;
     }
 
-    t1 = GB_OPENMP_GET_WTIME - t1 ;
-    GBURBLE (" (step1: %g sec)", t1) ;
-    t1 = GB_OPENMP_GET_WTIME ;
-
     //--------------------------------------------------------------------------
     // STEP 2: sort the tuples in ascending order
     //--------------------------------------------------------------------------
@@ -639,10 +632,6 @@ GrB_Info GB_builder                 // build a matrix from tuples
             return (GrB_OUT_OF_MEMORY) ;
         }
     }
-
-    t1 = GB_OPENMP_GET_WTIME - t1 ;
-    GBURBLE (" (step2: %g sec)", t1) ;
-    t1 = GB_OPENMP_GET_WTIME ;
 
     //--------------------------------------------------------------------------
     // STEP 3: count vectors and duplicates in each slice
@@ -846,10 +835,6 @@ GrB_Info GB_builder                 // build a matrix from tuples
         }
     }
 
-    t1 = GB_OPENMP_GET_WTIME - t1 ;
-    GBURBLE (" (step3: %g sec)", t1) ;
-    t1 = GB_OPENMP_GET_WTIME ;
-
     //--------------------------------------------------------------------------
     // STEP 4: construct the vector pointers and hyperlist for T
     //--------------------------------------------------------------------------
@@ -997,10 +982,6 @@ GrB_Info GB_builder                 // build a matrix from tuples
     }
 
     int64_t *restrict Ti = T->i ;
-
-    t1 = GB_OPENMP_GET_WTIME - t1 ;
-    GBURBLE (" (step4: %g sec)", t1) ;
-    t1 = GB_OPENMP_GET_WTIME ;
 
     //==========================================================================
     // numerical phase of the build: assemble any duplicates
@@ -1436,10 +1417,6 @@ GrB_Info GB_builder                 // build a matrix from tuples
         }
     }
 
-    t1 = GB_OPENMP_GET_WTIME - t1 ;
-    GBURBLE (" (step5: %g sec)", t1) ;
-    t1 = GB_OPENMP_GET_WTIME ;
-
     //--------------------------------------------------------------------------
     // free workspace and return result
     //--------------------------------------------------------------------------
@@ -1451,8 +1428,6 @@ GrB_Info GB_builder                 // build a matrix from tuples
         ASSERT_MATRIX_OK (T, "T built", GB0) ;
         ASSERT (GB_IS_HYPERSPARSE (T)) ;
     }
-    tt = GB_OPENMP_GET_WTIME - tt;
-    GB_BURBLE_MATRIX (T, "(build ORIG 64/64 time: %g) ", tt) ;
     return (info) ;
 }
 

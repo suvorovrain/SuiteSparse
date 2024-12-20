@@ -295,8 +295,6 @@ GrB_Info GB_build               // build matrix
         Werk
     )) ;
 
-    double tt = GB_OPENMP_GET_WTIME ;
-
     //--------------------------------------------------------------------------
     // return an error if any duplicates found when they were not expected
     //--------------------------------------------------------------------------
@@ -344,10 +342,6 @@ GrB_Info GB_build               // build matrix
     ASSERT (!GB_ZOMBIES (T)) ;
     ASSERT (!GB_JUMBLED (T)) ;
     ASSERT (!GB_PENDING (T)) ;
-    info = GB_transplant_conform (C, C->type, &T, Werk) ;
-
-    tt = GB_OPENMP_GET_WTIME - tt;
-    GB_BURBLE_MATRIX (T, "(wrapup ORIG 64/64 time: %g) ", tt) ;
-    return (info) ;
+    return (GB_transplant_conform (C, C->type, &T, Werk)) ;
 }
 
