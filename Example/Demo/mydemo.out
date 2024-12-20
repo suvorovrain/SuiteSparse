@@ -72,9 +72,9 @@ CHOLMOD: v5.3.0 (in library)
 CHOLMOD version code: 5003000
 
 ------------------------------------------------------------
-GraphBLAS: v9.4.2 (Nov 18, 2024)
-GraphBLAS: v9.4.2 (in library)
-GraphBLAS version code: 9004002
+GraphBLAS: v9.4.3 (Dec 20, 2024)
+GraphBLAS: v9.4.3 (in library)
+GraphBLAS version code: 9004003
 
 ------------------------------------------------------------
 LAGraph: v1.1.4 (Aug 20, 2024)

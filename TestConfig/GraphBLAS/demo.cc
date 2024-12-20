@@ -11,10 +11,7 @@
 
 #include <iostream>
 
-extern "C"
-{
-    #include "GraphBLAS.h"
-}
+#include "GraphBLAS.h"
 
 int main (void)
 {

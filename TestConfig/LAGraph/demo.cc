@@ -11,10 +11,7 @@
 
 #include <iostream>
 
-extern "C"
-{
-    #include "LAGraph.h"
-}
+#include "LAGraph.h"
 
 int main (void)
 {

@@ -1,6 +1,6 @@
 Dec 20, 2024: version 7.9.0
 
-    * GraphBLAS v9.4.2: Added the GxB_IndexBinaryOp.  Added new JIT kernels.
+    * GraphBLAS v9.4.3: Added the GxB_IndexBinaryOp.  Added new JIT kernels.
         Disabled more FactoryKernels to reduce compiled library size.
     * Package versions in this release: (* denotes a new version)
         SuiteSparse_config 7.9.0    *
@@ -13,7 +13,7 @@ Dec 20, 2024: version 7.9.0
         CSparse 4.3.2
         CXSparse 4.4.1
         Example 1.8.4               *
-        GraphBLAS 9.4.2             *
+        GraphBLAS 9.4.3             *
         KLU 2.3.5
         LDL 3.3.2
         LAGraph 1.1.4
