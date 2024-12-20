@@ -7,8 +7,6 @@
 
 //------------------------------------------------------------------------------
 
-// JIT: done.
-
 // CALLED BY: GB_build, GB_wait, GB_transpose, GB_concat_hyper
 
 // This function is called by GB_build to build a matrix T for GrB_Matrix_build
@@ -110,6 +108,7 @@
 #include "binaryop/GB_binop.h"
 #include "jitifyer/GB_stringify.h"
 #ifndef GBCOMPACT
+#include "GB_control.h"
 #include "FactoryKernels/GB_bld__include.h"
 #endif
 
@@ -178,6 +177,9 @@ GrB_Info GB_builder                 // build a matrix from tuples
     ASSERT (I_work_size_handle != NULL) ;
     ASSERT (J_work_size_handle != NULL) ;
     ASSERT (S_work_size_handle != NULL) ;
+
+    double tt = GB_OPENMP_GET_WTIME ;
+    double t1 = GB_OPENMP_GET_WTIME ;
 
     //--------------------------------------------------------------------------
     // get Sx
@@ -514,6 +516,10 @@ GrB_Info GB_builder                 // build a matrix from tuples
         known_no_duplicates = known_sorted && no_duplicates_found ;
     }
 
+    t1 = GB_OPENMP_GET_WTIME - t1 ;
+    GBURBLE (" (step1: %g sec)", t1) ;
+    t1 = GB_OPENMP_GET_WTIME ;
+
     //--------------------------------------------------------------------------
     // STEP 2: sort the tuples in ascending order
     //--------------------------------------------------------------------------
@@ -633,6 +639,10 @@ GrB_Info GB_builder                 // build a matrix from tuples
             return (GrB_OUT_OF_MEMORY) ;
         }
     }
+
+    t1 = GB_OPENMP_GET_WTIME - t1 ;
+    GBURBLE (" (step2: %g sec)", t1) ;
+    t1 = GB_OPENMP_GET_WTIME ;
 
     //--------------------------------------------------------------------------
     // STEP 3: count vectors and duplicates in each slice
@@ -789,11 +799,11 @@ GrB_Info GB_builder                 // build a matrix from tuples
     // Replace tnvec_slice with its cumulative sum, after which each slice tid
     // will be responsible for the # vectors in T that range from tnvec_slice
     // [tid] to tnvec_slice [tid+1]-1.
-    GB_cumsum (tnvec_slice, nthreads, NULL, 1, NULL) ;
+    GB_cumsum1 (tnvec_slice, nthreads) ;
     int64_t tnvec = tnvec_slice [nthreads] ;
 
     // Replace tnz_slice with its cumulative sum
-    GB_cumsum (tnz_slice, nthreads, NULL, 1, NULL) ;
+    GB_cumsum1 (tnz_slice, nthreads) ;
 
     // find the total # of final entries, after assembling duplicates
     int64_t tnz = tnz_slice [nthreads] ;
@@ -835,6 +845,10 @@ GrB_Info GB_builder                 // build a matrix from tuples
             GBURBLE ("(build) ") ;
         }
     }
+
+    t1 = GB_OPENMP_GET_WTIME - t1 ;
+    GBURBLE (" (step3: %g sec)", t1) ;
+    t1 = GB_OPENMP_GET_WTIME ;
 
     //--------------------------------------------------------------------------
     // STEP 4: construct the vector pointers and hyperlist for T
@@ -983,6 +997,10 @@ GrB_Info GB_builder                 // build a matrix from tuples
     }
 
     int64_t *restrict Ti = T->i ;
+
+    t1 = GB_OPENMP_GET_WTIME - t1 ;
+    GBURBLE (" (step4: %g sec)", t1) ;
+    t1 = GB_OPENMP_GET_WTIME ;
 
     //==========================================================================
     // numerical phase of the build: assemble any duplicates
@@ -1354,15 +1372,15 @@ GrB_Info GB_builder                 // build a matrix from tuples
                 // types are the same, but all of them are built-in since
                 // user-defined types cannot be typecasted.
 
-                const GB_Type_code scode = stype->code ;
+                const GB_Type_code Scode = stype->code ;
                 const size_t ssize = stype->size ;
-                GB_cast_function cast_S_to_T = GB_cast_factory (tcode, scode) ;
-                GB_cast_function cast_S_to_Y = GB_cast_factory (ycode, scode) ;
+                GB_cast_function cast_S_to_T = GB_cast_factory (tcode, Scode) ;
+                GB_cast_function cast_S_to_Y = GB_cast_factory (ycode, Scode) ;
                 GB_cast_function cast_T_to_X = GB_cast_factory (xcode, tcode) ;
                 GB_cast_function cast_Z_to_T = GB_cast_factory (tcode, zcode) ;
 
                 // all types must be built-in
-                ASSERT (scode <= GB_FC64_code) ;
+                ASSERT (Scode <= GB_FC64_code) ;
                 ASSERT (tcode <= GB_FC64_code) ;
                 ASSERT (xcode <= GB_FC64_code) ;
                 ASSERT (ycode <= GB_FC64_code) ;
@@ -1418,6 +1436,10 @@ GrB_Info GB_builder                 // build a matrix from tuples
         }
     }
 
+    t1 = GB_OPENMP_GET_WTIME - t1 ;
+    GBURBLE (" (step5: %g sec)", t1) ;
+    t1 = GB_OPENMP_GET_WTIME ;
+
     //--------------------------------------------------------------------------
     // free workspace and return result
     //--------------------------------------------------------------------------
@@ -1429,6 +1451,8 @@ GrB_Info GB_builder                 // build a matrix from tuples
         ASSERT_MATRIX_OK (T, "T built", GB0) ;
         ASSERT (GB_IS_HYPERSPARSE (T)) ;
     }
+    tt = GB_OPENMP_GET_WTIME - tt;
+    GB_BURBLE_MATRIX (T, "(build ORIG 64/64 time: %g) ", tt) ;
     return (info) ;
 }
 

@@ -44,6 +44,8 @@
 // not done here.  If dup is not associative, the GraphBLAS spec states that
 // the results are not defined.
 
+// The dup operator cannot be based on a GxB_IndexBinaryOp.
+
 // SuiteSparse:GraphBLAS provides a well-defined order of assembly, however.
 // For a CSC format, entries in [I,J,X] are first sorted in increasing order of
 // row and column index via a stable sort, with ties broken by the position of
@@ -293,6 +295,8 @@ GrB_Info GB_build               // build matrix
         Werk
     )) ;
 
+    double tt = GB_OPENMP_GET_WTIME ;
+
     //--------------------------------------------------------------------------
     // return an error if any duplicates found when they were not expected
     //--------------------------------------------------------------------------
@@ -305,7 +309,7 @@ GrB_Info GB_build               // build matrix
         // match nvals, then duplicates have been detected.  In the v2.0 C API,
         // this is an error condition.  If the user application wants the C
         // matrix returned with duplicates discarded, use dup = GxB_IGNORE_DUP
-        // instead. 
+        // instead.
         GB_FREE_ALL ;
         GB_ERROR (GrB_INVALID_VALUE, "Duplicates appear (" GBd ") but dup "
             "is NULL", ((int64_t) nvals) - tnvals) ;
@@ -321,8 +325,8 @@ GrB_Info GB_build               // build matrix
     // created an iso-valued matrix T, but this is not yet known.  X_iso is
     // false for these methods.  Since it has not yet been conformed to its
     // final sparsity structure, the matrix T is hypersparse, not bitmap.  It
-    // has no zombies or pending tuples, so GB_all_entries_are_iso does need to handle
-    // those cases.  T->x [0] is the new iso value of T.
+    // has no zombies or pending tuples, so GB_all_entries_are_iso does need to
+    // handle those cases.  T->x [0] is the new iso value of T.
 
     if (!X_iso && GB_all_entries_are_iso (T))
     { 
@@ -340,6 +344,10 @@ GrB_Info GB_build               // build matrix
     ASSERT (!GB_ZOMBIES (T)) ;
     ASSERT (!GB_JUMBLED (T)) ;
     ASSERT (!GB_PENDING (T)) ;
-    return (GB_transplant_conform (C, C->type, &T, Werk)) ;
+    info = GB_transplant_conform (C, C->type, &T, Werk) ;
+
+    tt = GB_OPENMP_GET_WTIME - tt;
+    GB_BURBLE_MATRIX (T, "(wrapup ORIG 64/64 time: %g) ", tt) ;
+    return (info) ;
 }
 
