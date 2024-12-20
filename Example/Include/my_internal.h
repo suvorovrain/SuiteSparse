@@ -54,7 +54,14 @@
 #endif
 
 #if ! defined (NO_GRAPHBLAS)
+    #if defined ( __cplusplus )
+    extern "C"
+    {
+    #endif
     #include "GraphBLAS.h"
+    #if defined ( __cplusplus )
+    }
+    #endif
     #if !defined ( GxB_SUITESPARSE_GRAPHBLAS ) || \
         GxB_IMPLEMENTATION < GxB_VERSION (9,3,1)
     #error "This library requires SuiteSparse:GraphBLAS 9.3.1 or later"
