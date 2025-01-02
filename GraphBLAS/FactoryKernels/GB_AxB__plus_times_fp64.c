@@ -9,7 +9,6 @@
 #ifdef GBRISCV64
 #include <riscv_vector.h>
 #endif
-#include "stdio.h"
 #include "GB.h"
 #include "GB_control.h"
 #include "mxm/GB_AxB_saxpy.h"
